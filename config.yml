@@ -1,0 +1,14 @@
+# Input
+payment_dir: src/payments
+order_dir: src/orders
+invoice_dir: src/invoices
+import_dir: new
+
+# Output
+dist: dist/
+invoice_file: invoices.pdf
+json_file: data.json
+
+# Day ranges
+order_invoice_range: 3
+payment_invoice_range: 14
