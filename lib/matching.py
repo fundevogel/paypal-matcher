@@ -1,6 +1,7 @@
 #! /usr/bin/python
 # ~*~ coding=utf-8 ~*~
 
+import sys
 from datetime import datetime, timedelta
 from operator import itemgetter
 
@@ -55,7 +56,7 @@ def match_invoices(payment, orders, invoices, order_invoice_range=3, payment_inv
                 product_hits = 0
 
                 for product in order['Artikel']:
-                    if product in ' '.join(invoice['Artikel']):
+                    if str(product) in ' '.join(invoice['Artikel']):
                         product_hits += 1
 
                 if product_hits == len(order['Artikel']):

@@ -76,7 +76,7 @@ def process_orders(data):
         order['Name'] = ' '.join([item['rechnungaddressfirstname'], item['rechnungaddresslastname']])
         order['Betrag'] = convert_cost(item['totalordercost'])  # totalordercost = + shipping?
         order['Artikel'] = item['isbn']
-        order['Straße'] = ' '.join([item['rechnungaddressstreet'], item['rechnungaddresshousenumber']])
+        order['Straße'] = ' '.join([item['rechnungaddressstreet'], str(item['rechnungaddresshousenumber'])])
         order['PLZ'] = item['rechnungaddresszipcode']
         order['Ort'] = item['rechnungaddresscity']
         # TODO: nan
