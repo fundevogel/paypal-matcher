@@ -37,7 +37,7 @@ def process_payments(data):
         except AttributeError:
             pass
 
-    payments.sort(key=lambda x: datetime.strptime(x['Datum'], '%d.%m.%Y'))
+    payments.sort(key=lambda payment: datetime.strptime(payment['Datum'], '%d.%m.%Y'))
 
     return payments
 
