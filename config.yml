@@ -2,10 +2,10 @@
 payment_dir: src/payments
 order_dir: src/orders
 invoice_dir: src/invoices
-import_dir: new
+import_dir: imports
 
 # Output
-dist: dist/
+dist: dist
 invoice_file: invoices.pdf
 json_file: data.json
 

@@ -1,8 +1,5 @@
-new/*
-!new/index.html
-
 src/*
 !src/index.html
 
-dist/*
-!dist/index.html
+dist
+imports
