@@ -62,9 +62,8 @@ def load_csv(csv_files, delimiter=',', encoding='utf-8'):
     try:
         df = concat(map(lambda file: read_csv(file, sep=delimiter, encoding=encoding), csv_files))
 
-    except FileNotFoundError as e:
-        print(e)
-        sys.exit()
+    except FileNotFoundError:
+        return {}
 
     return df.to_dict('records')
 
