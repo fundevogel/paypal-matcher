@@ -1,11 +1,10 @@
 #! /usr/bin/python
 # ~*~ coding=utf-8 ~*~
 
+import os
 import sys
 
 from glob import glob
-from shutil import move
-from os.path import join as knot
 
 from lib.helpers import load_config
 from lib.imports import import_files, import_payments
@@ -31,17 +30,17 @@ if __name__ == "__main__":
     payments = process_payments(payment_data)
 
     # Orders
-    order_files = glob(knot(config['order_dir'], '*.csv'))
+    order_files = glob(os.path.join(config['order_dir'], '*.csv'))
     order_data = load_csv(order_files)
     orders = process_orders(order_data)
 
     # Orders
-    info_files = glob(knot(config['info_dir'], '*.csv'))
+    info_files = glob(os.path.join(config['info_dir'], '*.csv'))
     info_data = load_csv(info_files)
     infos = process_infos(info_data)
 
     # Invoices
-    invoices = glob(knot(config['invoice_dir'], '*.pdf'))
+    invoices = glob(os.path.join(config['invoice_dir'], '*.pdf'))
 
     results = []
 

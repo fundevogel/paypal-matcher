@@ -1,11 +1,10 @@
 #! /usr/bin/python
 # ~*~ coding=utf-8 ~*~
 
+import os
 import sys
 import json
 
-from os.path import join as knot
-import pandas as pd
 from pandas import DataFrame, concat, read_csv
 from PyPDF2 import PdfFileReader, PdfFileMerger
 
@@ -21,7 +20,7 @@ def merge_pdf(invoice_data, output_file):
         pdf_files = []
         list(map(pdf_files.extend, [item['Datei'] for item in data if 'Datei' in item]))
 
-        invoice_file = knot(config['dist'], identifier, output_file)
+        invoice_file = os.path.join(config['dist'], identifier, output_file)
 
         merger = PdfFileMerger()
 
@@ -47,24 +46,24 @@ def load_csv(csv_files, delimiter=',', encoding='utf-8'):
 
 
 def import_csv(csv_files, data_type):
-    encoding = 'utf-8' if data_type == 'payments' else 'iso-8859-1'
-    delimiter = ',' if data_type == 'payments' else ';'
-    file_path = config['payment_dir'] if data_type == 'payments' else config['order_dir']
+    encoding = 'utf-8'
+    delimiter = ','
+    file_path = config[data_type + '_dir']
 
-    if data_type == 'orders':
+    if data_type == 'order':
         encoding = 'iso-8859-1'
         delimiter = ';'
-        file_path = config['order_dir']
 
-    if data_type == 'infos':
+    if data_type == 'info':
         encoding = 'iso-8859-1'
         delimiter = ';'
-        file_path = config['info_dir']
 
     csv_data = dedupe(load_csv(csv_files, delimiter, encoding))
 
+    print(csv_data[0])
+
     for identifier, data in group_data(csv_data).items():
-        csv_file = knot(file_path, identifier + '.csv')
+        csv_file = os.path.join(file_path, identifier + '.csv')
         create_path(csv_file)
         _dump_csv(data, csv_file)
 
@@ -81,7 +80,7 @@ def dump_csv(raw, file_path):
     csv_data = dedupe(raw)
 
     for identifier, data in group_data(csv_data).items():
-        csv_file = knot(file_path, identifier, identifier + '.csv')
+        csv_file = os.path.join(file_path, identifier, identifier + '.csv')
         create_path(csv_file)
         _dump_csv(data, csv_file)
 
@@ -92,7 +91,7 @@ def dump_json(raw, file_path):
     json_data = dedupe(raw)
 
     for identifier, data in group_data(json_data).items():
-        json_file = knot(file_path, identifier, identifier + '.json')
+        json_file = os.path.join(file_path, identifier, identifier + '.json')
         create_path(json_file)
 
         with open(json_file, 'w') as file:

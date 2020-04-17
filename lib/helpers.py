@@ -31,7 +31,7 @@ def create_path(file_path):
     return True
 
 
-def dedupe(duped_dat, encoding='utf-8'):
+def dedupe(duped_data, encoding='utf-8'):
     deduped_data = []
     identifiers = set()
 
@@ -51,10 +51,9 @@ def group_data(ungrouped_data):
     for item in ungrouped_data:
         try:
             if 'Datum' in item:
-                _, month, year = date = item['Datum'].split('.')
+                _, month, year = item['Datum'].split('.')
             else:
-                delimiter = '-'
-
+                print(item)
                 if 'Creation Date' in item:
                     date = item['Creation Date']
 
