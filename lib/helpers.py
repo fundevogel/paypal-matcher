@@ -31,12 +31,12 @@ def create_path(file_path):
     return True
 
 
-def dedupe(duped_data):
+def dedupe(duped_dat, encoding='utf-8'):
     deduped_data = []
     identifiers = set()
 
     for item in duped_data:
-        hash_digest = md5(str(item).encode('utf-8')).hexdigest()
+        hash_digest = md5(str(item).encode(encoding)).hexdigest()
 
         if hash_digest not in identifiers:
             identifiers.add(hash_digest)
@@ -50,15 +50,22 @@ def group_data(ungrouped_data):
 
     for item in ungrouped_data:
         try:
-            _, month, year = item['Datum'].split('.')
-        except KeyError:
-            try:
-                # Different for imported orders
-                year, month = str(item['timeplaced'])[:7].split('-')
+            if 'Datum' in item:
+                _, month, year = date = item['Datum'].split('.')
+            else:
+                delimiter = '-'
 
-            except ValueError:
-                # EOF
-                pass
+                if 'Creation Date' in item:
+                    date = item['Creation Date']
+
+                if 'timeplaced' in item:
+                    date = item['timeplaced']
+
+                year, month = str(date)[:7].split('-')
+
+        except ValueError:
+            # EOF
+            pass
 
         identifier = '-'.join([str(year), str(month)])
 

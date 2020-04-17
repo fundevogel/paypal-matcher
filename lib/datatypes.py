@@ -5,7 +5,6 @@ import sys
 import json
 
 from os.path import join as knot
-from datetime import datetime
 import pandas as pd
 from pandas import DataFrame, concat, read_csv
 from PyPDF2 import PdfFileReader, PdfFileMerger
@@ -17,32 +16,11 @@ from lib.helpers import load_config, create_path, dedupe, group_data
 config = load_config('../config.yml')
 
 
-def load_pdf(pdf_file):
-    try:
-        with open(pdf_file, 'rb') as file:
-            pdf_name = file.name
-            pdf_file = PdfFileReader(file)
-            pdf_page = pdf_file.getPage(0)
-            pdf_text = pdf_page.extractText()
-
-        pdf_content = pdf_text.split('\n')
-
-        # TODO: Only if PAYPAL payment (doesn't seem readable by PdfFileReader)
-        pdf_data = [
-            pdf_name,
-            pdf_content
-        ]
-
-    except FileNotFoundError:
-        print('No PDF file found: ' + pdf_file)
-        sys.exit()
-
-    return pdf_data
-
-
 def merge_pdf(invoice_data, output_file):
     for identifier, data in group_data(invoice_data).items():
-        pdf_files = [item['Datei'] for item in data if 'Datei' in item]
+        pdf_files = []
+        list(map(pdf_files.extend, [item['Datei'] for item in data if 'Datei' in item]))
+
         invoice_file = knot(config['dist'], identifier, output_file)
 
         merger = PdfFileMerger()
@@ -60,7 +38,7 @@ def merge_pdf(invoice_data, output_file):
 
 def load_csv(csv_files, delimiter=',', encoding='utf-8'):
     try:
-        df = concat(map(lambda file: read_csv(file, sep=delimiter, encoding=encoding), csv_files))
+        df = concat(map(lambda file: read_csv(file, sep=delimiter, encoding=encoding, low_memory=False), csv_files))
 
     except FileNotFoundError:
         return {}
@@ -77,6 +55,11 @@ def import_csv(csv_files, data_type):
         encoding = 'iso-8859-1'
         delimiter = ';'
         file_path = config['order_dir']
+
+    if data_type == 'infos':
+        encoding = 'iso-8859-1'
+        delimiter = ';'
+        file_path = config['info_dir']
 
     csv_data = dedupe(load_csv(csv_files, delimiter, encoding))
 

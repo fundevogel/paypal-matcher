@@ -1,6 +1,7 @@
 # Input
 payment_dir: src/payments
 order_dir: src/orders
+info_dir: src/infos
 invoice_dir: src/invoices
 import_dir: imports
 
@@ -10,5 +11,4 @@ invoice_file: invoices.pdf
 json_file: data.json
 
 # Day ranges
-order_invoice_range: 3
-payment_invoice_range: 14
+payment_order_range: 1
