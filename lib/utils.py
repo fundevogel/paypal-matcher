@@ -1,11 +1,11 @@
 #! /usr/bin/python
 # ~*~ coding=utf-8 ~*~
 
-from yaml import safe_load, YAMLError
-
 from os import makedirs, path
-from datetime import datetime
 from hashlib import md5
+from datetime import datetime
+
+from yaml import safe_load, YAMLError
 
 
 def load_config(config_file):
@@ -33,13 +33,13 @@ def create_path(file_path):
 
 def dedupe(duped_data, encoding='utf-8'):
     deduped_data = []
-    identifiers = set()
+    codes = set()
 
     for item in duped_data:
         hash_digest = md5(str(item).encode(encoding)).hexdigest()
 
-        if hash_digest not in identifiers:
-            identifiers.add(hash_digest)
+        if hash_digest not in codes:
+            codes.add(hash_digest)
             deduped_data.append(item)
 
     return deduped_data
@@ -53,7 +53,6 @@ def group_data(ungrouped_data):
             if 'Datum' in item:
                 _, month, year = item['Datum'].split('.')
             else:
-                print(item)
                 if 'Creation Date' in item:
                     date = item['Creation Date']
 
@@ -66,11 +65,11 @@ def group_data(ungrouped_data):
             # EOF
             pass
 
-        identifier = '-'.join([str(year), str(month)])
+        code = '-'.join([str(year), str(month)])
 
-        if identifier not in grouped_data.keys():
-            grouped_data[identifier] = []
+        if code not in grouped_data.keys():
+            grouped_data[code] = []
 
-        grouped_data[identifier].append(item)
+        grouped_data[code].append(item)
 
     return grouped_data

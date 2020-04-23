@@ -3,14 +3,12 @@
 
 import os
 import sys
-
 from glob import glob
 
-from lib.helpers import load_config
-from lib.imports import import_files, import_payments
-from lib.datatypes import merge_pdf, load_csv, import_csv, dump_csv, dump_json
-from lib.processing import process_payments, process_orders, process_infos
-from lib.matching import match_payment, match_infos, match_invoices
+from knv_pypal import match_data
+
+from lib.utils import load_config
+from lib.data import load_data, import_csv, export_csv, import_pdf, export_pdf
 
 
 if __name__ == "__main__":
@@ -19,64 +17,37 @@ if __name__ == "__main__":
 
     # On '--import', import all files from config['import_dir]
     if '--import' in sys.argv:
-        if import_files() == True:
-            sys.exit('Import done!')
-        else:
-            sys.exit('Import failed!')
+        # Import payment files
+        payment_files_old = glob(os.path.join(config['payment_dir'], '*.json'))
+        payment_files_new = glob(os.path.join(config['import_dir'], 'Download*.CSV'))
+        import_csv(payment_files_old, payment_files_new, 'payment')
 
-    # Payments
-    payment_files = import_payments()
-    payment_data = load_csv(payment_files)
-    payments = process_payments(payment_data)
+        # Import order files
+        order_files_old = glob(os.path.join(config['order_dir'], '*.json'))
+        order_files_new = glob(os.path.join(config['import_dir'], 'Orders_*.csv'))
+        import_csv(order_files_old, order_files_new, 'order')
 
-    # Orders
-    order_files = glob(os.path.join(config['order_dir'], '*.csv'))
-    order_data = load_csv(order_files)
-    orders = process_orders(order_data)
+        # Import info files
+        info_files_old = glob(os.path.join(config['info_dir'], '*.json'))
+        info_files_new = glob(os.path.join(config['import_dir'], 'OrdersInfo_*.csv'))
+        import_csv(info_files_old, info_files_new, 'info')
 
-    # Orders
-    info_files = glob(os.path.join(config['info_dir'], '*.csv'))
-    info_data = load_csv(info_files)
-    infos = process_infos(info_data)
+        # Import PDF files
+        import_pdf(glob(os.path.join(config['import_dir'], '*.pdf')))
 
-    # Invoices
+        sys.exit('Import done!')
+
+    # Load CSV data
+    # (1) Single sources
+    # (2) Matched sources
+    payments, orders, infos = load_data()
+    matches = match_data(payments, orders, infos)
+
+    # Assign invoices
     invoices = glob(os.path.join(config['invoice_dir'], '*.pdf'))
 
-    results = []
+    # Merge matched invoices
+    export_pdf(matches, invoices)
 
-    for payment in payments:
-        # Assign payment to matching invoice
-        # (1) Find matching order for payment
-        # (2) Find matching info for matching order
-        # (3) Find matching invoice for matching info
-        matching_order = match_payment(payment, orders)
-        matching_infos = match_infos(matching_order, infos)
-        matching_invoices = match_invoices(matching_infos, invoices)
-
-        # Skip if no matching invoices
-        if not matching_invoices:
-            results.append(payment)
-            continue
-
-        # Store data
-        # (1) Add match's information to payment data
-        # (2) Save payment & match as tuple
-        payment['Vorgang'] = ', '.join(matching_infos)
-        payment['Datei'] = matching_invoices
-        results.append(payment)
-
-    # Generate PDF for matches by
-    # (1) .. merging matched invoices
-    merge_pdf(results, config['invoice_file'])
-
-    # (2) .. removing their reference from payment data
-    for result in results:
-        if 'Datei' in result:
-            del(result['Datei'])
-
-    # Write JSON & CSV files
-    # (1) Build base directory
-    # (2) Write CSV
-    # (3) Write JSON
-    dump_csv(results, config['dist'])
-    dump_json(results, config['dist'])
+    # Write CSV files
+    export_csv(matches, config['dist'])
