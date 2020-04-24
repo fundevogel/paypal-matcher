@@ -7,6 +7,7 @@ dbfread==2.0.7
 et-xmlfile==1.0.1
 isodate==0.6.0
 jdcal==1.4.1
+knv-paypal-matcher==0.3
 leather==0.3.3
 numpy==1.18.2
 openpyxl==3.0.3
